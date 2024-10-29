@@ -18,6 +18,7 @@ model Student {
     username String       @unique
     password String
     exp      Int
+    level    Int
     projects Assignment[]
 }
 
