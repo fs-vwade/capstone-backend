@@ -4,7 +4,8 @@ const express = require("express");
 const app = express();
 const PORT = 3000;
 
-const { routes, errorHandler } = require("./routes");
+const routes = require("./routes");
+const { errorHandler } = require("./middleware");
 
 app.use(routes);
 

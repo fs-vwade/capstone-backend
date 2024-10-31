@@ -3,9 +3,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { authRoutes, authenticate } = require("../api/auth");
-const { errorHandler } = require("../middleware");
-const auth = require("../api/auth");
+const { authRoutes, authenticate, errorHandler } = require("../middleware");
 
 router.use(require("morgan")("dev"));
 router.use(express.json());
@@ -15,7 +13,5 @@ router.use("/projects", authenticate, require("./projects")); // this entire pat
 router.use("/info", authenticate, require("./student"));
 router.use("/profile", require("./student/profile"));
 
-module.exports = {
-	routes: router,
-	errorHandler,
-};
+debugger;
+module.exports = router;
