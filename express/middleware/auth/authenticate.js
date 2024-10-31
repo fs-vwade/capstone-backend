@@ -6,4 +6,4 @@ function authenticate(req, res, next) {
     next({ status: 401, message: "You must be logged in." });
   }
 }
-module.exports = (req, res, next) => {}; // intentionally left blank
+(module.exports = (req, res, next) => {}), authenticate; // intentionally left blank
