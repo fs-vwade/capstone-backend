@@ -13,5 +13,4 @@ router.use("/projects", authenticate, require("./projects")); // this entire pat
 router.use("/info", authenticate, require("./student"));
 router.use("/profile", require("./student/profile"));
 
-debugger;
 module.exports = router;
