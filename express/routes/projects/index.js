@@ -5,6 +5,8 @@ const router = express.Router();
 const prisma = require("../../../prisma");
 const authenticate = require("../../middleware/auth/authenticate");
 
+const faker = require("@faker-js/faker");
+
 router.get("/", async (req, res, next) => {
 	try {
 		const projects = await prisma.projects.findMany();
@@ -15,15 +17,34 @@ router.get("/", async (req, res, next) => {
 });
 
 router.get("/:id", async (req, res, next) => {
-	const { id } = req.params;
 	try {
-		const projects = await prisma.projects.findUniqueOrThrow({
-			where: { id: +id },
+		const { id } = req.params;
+		const assignment = await prisma.assignment.findUnique({
+			where: {
+				studentId: req.user.id,
+				currentProjectId: +id,
+			},
+			include: { currentProject: true },
 		});
-		if (projects.userId !== req.user.id) {
-			next({ status: 403, message: "You are not logged in" });
-		}
-		res.json(projects);
+		const enrolled = !!assignment;
+
+		res.json({
+			name: assignment.currentProject.name,
+			grade: assignment.grade,
+			enrolled,
+			project: {
+				exp: assignment.currentProject.exp,
+				type: assignment.currentProject.type,
+				description: assignment.currentProject.description,
+				links: Array.from(
+					{ length: Math.floor(2 + Math.random() * 3) },
+					(e, idx) =>
+						`/projects/${id}/resources/${
+							idx ? faker.system.fileName() : "subject.pdf"
+						}`
+				),
+			},
+		});
 	} catch (e) {
 		next(e);
 	}
