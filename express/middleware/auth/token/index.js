@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
+const prisma = require("../../../../prisma");
 
 module.exports = {
 	createToken: (id) => jwt.sign({ id }, JWT_SECRET, { expiresIn: "1d" }),
