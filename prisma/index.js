@@ -6,14 +6,15 @@ prisma.$extends({
 	model: {
 		student: {
 			register: async (username, password) =>
-				await prisma.user.create({
+				await prisma.student.create({
 					data: { username, password: await bcrypt.hash(String(password), 10) },
 				}),
 			login: async (username, password) => {
-				const user = await prisma.user.findUniqueOrThrow({
+				const student = await prisma.student.findUniqueOrThrow({
 					where: { username },
 				});
-				if (await bcrypt.compare(String(password), user.password)) return user;
+				if (await bcrypt.compare(String(password), student.password))
+					return student;
 				throw Error("Invalid password");
 			},
 		},
