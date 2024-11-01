@@ -32,13 +32,18 @@ prisma.$use(async (params, next) => {
 			include: { currentProject: true },
 		});
 
+		const XP = assignments.reduce(
+			(exp, assignment) =>
+				exp + (assignment.grade / 100) * assignment.currentProject.exp,
+			0
+		);
+
 		await prisma.student.update({
 			where: { id: studentId },
 			data: {
-				exp: assignments.reduce(
-					(exp, assignment) =>
-						exp + (assignment.grade / 100) * assignment.currentProject.exp,
-					0
+				exp: XP,
+				level: parseFloat(
+					Number(Math.log(1 + (0.25 * XP) / 80) / Math.log(1.25)).toFixed(15)
 				),
 			},
 		});
