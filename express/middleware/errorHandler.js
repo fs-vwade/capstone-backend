@@ -11,6 +11,7 @@ errorHandler.use((err, req, res, next) => {
 	console.error(err);
 	res.status(err.status ?? 500);
 	res.json(err.message ?? "Sorry, something broke :(");
+	console.log("caught something");
 });
 
 module.exports = errorHandler;

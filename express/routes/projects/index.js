@@ -63,7 +63,7 @@ router.post("/:id", async (req, res, next) => {
 				},
 			})
 		)
-			return next({ error: 401, message: "Assignment already exists" });
+			return next({ status: 401, message: "Assignment already exists" });
 
 		// create new assignment
 		const assignment = await prisma.assignment.create({

@@ -1,18 +1,14 @@
 @host=http://localhost:3000
+@username=Jo55
 
-###
+### No route
 GET {{host}}
 
-###
-GET {{host}}/info
+### Public user profile
+GET {{host}}/profile/{{username}}
 
-###
-GET {{host}}/projects
-
-###
-GET {{host}}/projects/1
-
-###
+### New user
+# @name register
 POST {{host}}/register
 Content-Type: application/json
 
@@ -20,4 +16,33 @@ Content-Type: application/json
 	"username": "foobar1",
 	"password": "12345677"
 }
+
+### Existing user
+# @name login
+POST {{host}}/login
+Content-Type: application/json
+
+{
+	"username": "foobar1",
+	"password": "12345677"
+}
+
+###
+# @name token
+@token={{login.response.body.token}}
+
+###
+GET {{host}}/info
+Authorization: {{token}}
+
+###
+GET {{host}}/projects
+Authorization: {{token}}
+
+###
+GET {{host}}/projects/1
+Authorization: {{token}}
+
+
+
 
