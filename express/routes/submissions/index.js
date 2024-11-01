@@ -11,7 +11,7 @@ router.put("/", async (req, res, next) => {
 			where: { studentId: req.user.id, currentProjectId: projectId },
 		});
 		if (assignment) res.status(200).json(student);
-		else next({ error: 404, message: "Student is not enrolled." });
+		else next({ error: 404, message: "Student must be enrolled." });
 	} catch (e) {
 		next(e);
 	}
