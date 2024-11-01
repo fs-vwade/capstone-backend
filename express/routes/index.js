@@ -3,7 +3,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { authRoutes, authenticate, errorHandler } = require("../middleware");
+const { authRoutes, authenticate } = require("../middleware");
 
 router.use(require("morgan")("dev"));
 router.use(express.json());
