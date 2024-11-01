@@ -9,7 +9,7 @@ router.get("/:username", async (req, res, next) => {
 		const { username } = req.params;
 		const student = await prisma.student.findUnique({
 			where: { username },
-			include: { password: false, projects: false },
+			include: { id: false, password: false, projects: false },
 		});
 		if (student) res.status(200).json(student);
 		else next({ error: 404, message: "No student exists with that username." });
