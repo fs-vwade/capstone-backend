@@ -10,7 +10,7 @@ router.use(express.json());
 
 router.use(authRoutes);
 router.use("/submissions", authenticate, require("./submissions"));
-router.use("/projects", authenticate, require("./projects"));
+router.use("/projects", require("./projects"));
 router.use("/info", authenticate, require("./student"));
 router.use("/profile", require("./student/profile"));
 

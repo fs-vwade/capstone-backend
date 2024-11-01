@@ -17,14 +17,14 @@ model Student {
     id       Int          @id @default(autoincrement())
     username String       @unique
     password String
-    exp      Int
-    level    Int
+    exp      Int          @default(0)
+    level    Int          @default(0)
     projects Assignment[]
 }
 
 model Assignment {
     id               Int     @id @default(autoincrement())
-    grade            Int
+    grade            Int     @default(0)
     student          Student @relation(fields: [studentId], references: [id])
     studentId        Int
     currentProject   Project @relation(fields: [currentProjectId], references: [id])

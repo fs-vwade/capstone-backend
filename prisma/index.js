@@ -2,25 +2,6 @@ const bcrypt = require("bcrypt");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-prisma.$extends({
-	model: {
-		student: {
-			register: async (username, password) =>
-				await prisma.student.create({
-					data: { username, password: await bcrypt.hash(String(password), 10) },
-				}),
-			login: async (username, password) => {
-				const student = await prisma.student.findUniqueOrThrow({
-					where: { username },
-				});
-				if (await bcrypt.compare(String(password), student.password))
-					return student;
-				throw Error("Invalid password");
-			},
-		},
-	},
-});
-
 prisma.$use(async (params, next) => {
 	if (
 		params.model === "Assignment" &&
@@ -55,4 +36,24 @@ prisma.$use(async (params, next) => {
 	return next(params);
 });
 
-module.exports = prisma;
+module.exports = prisma.$extends({
+	model: {
+		student: {
+			register: async (username, password) =>
+				await prisma.student.create({
+					data: {
+						username,
+						password: await bcrypt.hash(String(password), 10),
+					},
+				}),
+			login: async (username, password) => {
+				const student = await prisma.student.findUniqueOrThrow({
+					where: { username },
+				});
+				if (await bcrypt.compare(String(password), student.password))
+					return student;
+				throw Error("Invalid password");
+			},
+		},
+	},
+});

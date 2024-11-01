@@ -9,8 +9,8 @@ const faker = require("@faker-js/faker");
 
 router.get("/", async (req, res, next) => {
 	try {
-		const projects = await prisma.projects.findMany();
-		res.json(projects);
+		const projects = await prisma.project.findMany();
+		res.json({ projects });
 	} catch (e) {
 		next(e);
 	}
@@ -32,7 +32,7 @@ router.get("/:id", async (req, res, next) => {
 			name: assignment.currentProject.name,
 			grade: assignment.grade,
 			enrolled,
-			project: {
+			project: enrolled ?? {
 				exp: assignment.currentProject.exp,
 				type: assignment.currentProject.type,
 				description: assignment.currentProject.description,

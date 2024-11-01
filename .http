@@ -10,4 +10,14 @@ GET {{host}}/info
 GET {{host}}/projects
 
 ###
-GET {{host}}/
+GET {{host}}/projects/1
+
+###
+POST {{host}}/register
+Content-Type: application/json
+
+{
+	"username": "foobar1",
+	"password": "12345677"
+}
+
