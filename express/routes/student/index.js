@@ -11,13 +11,7 @@ router.get("/", async (req, res, next) => {
 			include: { projects },
 			omit: { password: true },
 		});
-		res.status(200).json(student); /**{
-			name: student.name,
-			username: student.username,
-			level: student.level,
-			exp: student.exp,
-			projects: student.projects,
-		} */
+		res.status(200).json(student);
 	} catch (e) {
 		next(e);
 	}
