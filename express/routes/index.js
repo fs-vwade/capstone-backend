@@ -9,9 +9,9 @@ router.use(require("morgan")("dev"));
 router.use(express.json());
 
 router.use(authRoutes);
-router.use("/projects", authenticate, require("./projects")); // this entire path requires authentication
+router.use("/submissions", authenticate, require("./submissions"));
+router.use("/projects", authenticate, require("./projects"));
 router.use("/info", authenticate, require("./student"));
 router.use("/profile", require("./student/profile"));
 
-debugger;
 module.exports = router;

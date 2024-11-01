@@ -1,3 +1,5 @@
+const prisma = require("../../../prisma");
+
 // authentication function
 function authenticate(req, res, next) {
   if (req.user) {
