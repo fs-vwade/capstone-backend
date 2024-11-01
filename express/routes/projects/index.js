@@ -5,7 +5,7 @@ const router = express.Router();
 const prisma = require("../../../prisma");
 const authenticate = require("../../middleware/auth/authenticate");
 
-router.get("/", authenticate, async (req, res, next) => {
+router.get("/", async (req, res, next) => {
 	try {
 		const projects = await prisma.projects.findMany();
 		res.json(projects);
@@ -14,7 +14,7 @@ router.get("/", authenticate, async (req, res, next) => {
 	}
 });
 
-router.get("/:id", authenticate, async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
 	const { id } = req.params;
 	try {
 		const projects = await prisma.projects.findUniqueOrThrow({
