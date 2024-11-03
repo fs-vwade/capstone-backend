@@ -1,5 +1,6 @@
 @host=http://localhost:3000
 @username=Jo55
+@project_id=24
 
 ### No route
 GET {{host}}
@@ -40,20 +41,29 @@ GET {{host}}/projects
 Authorization: Bearer {{login.response.body.token}}
 
 ### Check user enrollment
-GET {{host}}/projects/1
+GET {{host}}/projects/{{project_id}}
 Authorization: Bearer {{login.response.body.token}}
 
 ### Create user enrollment
-POST {{host}}/projects/1
+POST {{host}}/projects/{{project_id}}
 Authorization: Bearer {{login.response.body.token}}
 
 ### Create user enrollment
-DELETE  {{host}}/projects/1
+DELETE  {{host}}/projects/{{project_id}}
 Authorization: Bearer {{login.response.body.token}}
 
 ### Print token response for debugging
 GET {{host}}/profile/{{username}}
 Authorization: Bearer {{login.response.body.token}}
 
+### Create user enrollment
+PUT {{host}}/submissions
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
 
+{
+	"studentId": 31,
+	"projectId": 1,
+	"grade": 100
+}
 
