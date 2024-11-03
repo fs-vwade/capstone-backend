@@ -5,13 +5,16 @@ const prisma = require("../../../../prisma");
 module.exports = {
 	createToken: (id) => jwt.sign({ id }, JWT_SECRET, { expiresIn: "1d" }),
 	verifyToken: async (req, res, next) => {
-		const authheader = req.headers.authorization;
-		const token = authheader?.slice(7);
-		if (!token) return next();
 		try {
+			const token = req.headers.authorization
+				?.replace(/(?:Bearer )/, "")
+				.trim();
+			if (!token) return next();
+
 			const { id } = jwt.verify(token, JWT_SECRET);
-			const user = await prisma.user.findUniqueOrThrow({ where: { id } });
+			const user = await prisma.student.findUniqueOrThrow({ where: { id } });
 			req.user = user;
+			next();
 		} catch (e) {
 			next(e);
 		}

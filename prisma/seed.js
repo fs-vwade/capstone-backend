@@ -18,7 +18,7 @@ const seed = async (project_seeds = 25) => {
 			name: faker.hacker.abbreviation(),
 			type: "Individual",
 			description: faker.lorem.sentences(),
-			exp: 100 * Math.pow(2.5, Math.floor(Math.random() * 4)),
+			exp: 100 * Math.pow(2.5, Math.floor(Math.pow(Math.random(), 3) * 4)),
 		})),
 	});
 	const students = await prisma.student.createManyAndReturn({

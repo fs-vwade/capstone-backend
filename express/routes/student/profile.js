@@ -11,8 +11,9 @@ router.get("/:username", async (req, res, next) => {
 			where: { username },
 			include: { id: false, password: false, projects: false },
 		});
+
 		if (student) res.status(200).json(student);
-		else next({ error: 404, message: "No student exists with that username." });
+		else next({ status: 404, message: "Unable to retrieve profile." });
 	} catch (e) {
 		next(e);
 	}

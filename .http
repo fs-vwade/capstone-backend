@@ -1,0 +1,59 @@
+@host=http://localhost:3000
+@username=Jo55
+
+### No route
+GET {{host}}
+
+### Public user profile
+GET {{host}}/profile/{{username}}
+
+### New user
+# @name register
+POST {{host}}/register
+Content-Type: application/json
+
+{
+	"username": "foobar1",
+	"password": "12345677"
+}
+
+### Existing user
+# @name login
+POST {{host}}/login
+Content-Type: application/json
+
+{
+	"username": "foobar1",
+	"password": "12345677"
+}
+
+###
+# @name token
+@token={{login.response.body.token}}
+
+###
+GET {{host}}/info
+Authorization: Bearer {{login.response.body.token}}
+
+###
+GET {{host}}/projects
+Authorization: Bearer {{login.response.body.token}}
+
+### Check user enrollment
+GET {{host}}/projects/1
+Authorization: Bearer {{login.response.body.token}}
+
+### Create user enrollment
+POST {{host}}/projects/1
+Authorization: Bearer {{login.response.body.token}}
+
+### Create user enrollment
+DELETE  {{host}}/projects/1
+Authorization: Bearer {{login.response.body.token}}
+
+### Print token response for debugging
+GET {{host}}/profile/{{username}}
+Authorization: Bearer {{login.response.body.token}}
+
+
+
