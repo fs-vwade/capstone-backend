@@ -41,10 +41,10 @@ router.get("/:id", async (req, res, next) => {
 						description: assignment?.currentProject.description,
 						// we will seed this to the database later
 						links: Array.from(
-							{ length: Math.floor(2 + Math.random() * 3) },
+							{ length: Math.floor(2 + Math.random() * 4) },
 							(e, idx) =>
 								`/projects/${id}/resources/${
-									idx ? faker.system.fileName() : "subject.pdf"
+									idx ? `resource_${idx}.pdf` : "subject.pdf"
 								}`
 						),
 				  }
@@ -70,7 +70,7 @@ router.post("/:id", async (req, res, next) => {
 				},
 			})
 		)
-			return next({ status: 401, message: "Assignment already exists" });
+			return res.status(403).send("Already enrolled.");
 
 		// create new assignment
 		const assignment = await prisma.assignment.create({
@@ -80,6 +80,7 @@ router.post("/:id", async (req, res, next) => {
 			},
 		});
 		res.status(201).send("Student enrolled successfully.");
+		console.log(assignment);
 	} catch (e) {
 		next(e);
 	}
@@ -89,18 +90,28 @@ router.delete("/:id", async (req, res, next) => {
 	try {
 		const projectId = Number(req.params.id);
 
-		const reisignation = await prisma.assignment.delete({
+		const assignment = await prisma.assignment.findUnique({
 			where: {
-				grade: 0,
 				studentId_currentProjectId: {
 					studentId: req.user.id,
 					currentProjectId: projectId,
 				},
 			},
 		});
-		if (reisignation) res.status(204).send("Student successfully resigned.");
-		else
-			res.status(403).send("Reignation failed. The student is already graded.");
+
+		// Check if the assignment was found and has a grade of 0
+		if (!assignment) {
+			return res.status(404).send("Assignment not found.");
+		}
+		if (0 !== assignment.grade) {
+			return res
+				.status(403)
+				.send("Resignation failed. The student is already graded.");
+		}
+
+		await prisma.assignment.delete({ where: { id: assignment.id } });
+
+		res.status(204).json({ message: "Student successfully resigned." });
 	} catch (e) {
 		next(e);
 	}
