@@ -20,6 +20,7 @@ module.exports = {
 			//console.log(id, JWT_SECRET);
 			const user = await prisma.student.findUniqueOrThrow({ where: { id } });
 			req.user = user;
+			next();
 		} catch (e) {
 			next(e);
 		}
