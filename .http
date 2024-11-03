@@ -47,6 +47,10 @@ Authorization: Bearer {{login.response.body.token}}
 POST {{host}}/projects/1
 Authorization: Bearer {{login.response.body.token}}
 
+### Create user enrollment
+DELETE  {{host}}/projects/1
+Authorization: Bearer {{login.response.body.token}}
+
 ### Print token response for debugging
 GET {{host}}/profile/{{username}}
 Authorization: Bearer {{login.response.body.token}}

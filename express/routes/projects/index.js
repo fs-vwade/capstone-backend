@@ -85,4 +85,25 @@ router.post("/:id", async (req, res, next) => {
 	}
 });
 
+router.delete("/:id", async (req, res, next) => {
+	try {
+		const projectId = Number(req.params.id);
+
+		const reisignation = await prisma.assignment.delete({
+			where: {
+				grade: 0,
+				studentId_currentProjectId: {
+					studentId: req.user.id,
+					currentProjectId: projectId,
+				},
+			},
+		});
+		if (reisignation) res.status(204).send("Student successfully resigned.");
+		else
+			res.status(403).send("Reignation failed. The student is already graded.");
+	} catch (e) {
+		next(e);
+	}
+});
+
 module.exports = router;
