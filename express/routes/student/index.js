@@ -10,8 +10,7 @@ router.get("/", async (req, res, next) => {
 		const { id } = req.user;
 		const student = await prisma.student.findUnique({
 			where: { id },
-			include: { projects: true },
-			omit: { password: true },
+			include: { projects: true, password: false },
 		});
 		res.status(200).json({ student });
 	} catch (e) {

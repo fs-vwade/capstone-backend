@@ -39,8 +39,12 @@ Authorization: Bearer {{login.response.body.token}}
 GET {{host}}/projects
 Authorization: Bearer {{login.response.body.token}}
 
-###
+### Check user enrollment
 GET {{host}}/projects/1
+Authorization: Bearer {{login.response.body.token}}
+
+### Create user enrollment
+POST {{host}}/projects/1
 Authorization: Bearer {{login.response.body.token}}
 
 ### Print token response for debugging

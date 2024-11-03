@@ -29,6 +29,8 @@ model Assignment {
     studentId        Int
     currentProject   Project @relation(fields: [currentProjectId], references: [id])
     currentProjectId Int
+
+    @@unique([studentId, currentProjectId])
 }
 
 model Project {
