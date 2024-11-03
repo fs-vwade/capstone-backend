@@ -21,29 +21,34 @@ router.get("/:id", async (req, res, next) => {
 		const { id } = req.params;
 		const assignment = await prisma.assignment.findUnique({
 			where: {
-				studentId: req.user.id,
-				currentProjectId: +id,
+				studentId_currentProjectId: {
+					studentId: req.user.id,
+					currentProjectId: Number(id),
+				},
 			},
 			include: { currentProject: true },
 		});
 		const enrolled = !!assignment;
 
 		res.json({
-			name: assignment.currentProject.name,
-			grade: assignment.grade,
+			name: assignment?.currentProject.name,
+			grade: assignment?.grade,
 			enrolled,
-			project: enrolled ?? {
-				exp: assignment.currentProject.exp,
-				type: assignment.currentProject.type,
-				description: assignment.currentProject.description,
-				links: Array.from(
-					{ length: Math.floor(2 + Math.random() * 3) },
-					(e, idx) =>
-						`/projects/${id}/resources/${
-							idx ? faker.system.fileName() : "subject.pdf"
-						}`
-				),
-			},
+			project: enrolled
+				? {
+						exp: assignment?.currentProject.exp,
+						type: assignment?.currentProject.type,
+						description: assignment?.currentProject.description,
+						// we will seed this to the database later
+						links: Array.from(
+							{ length: Math.floor(2 + Math.random() * 3) },
+							(e, idx) =>
+								`/projects/${id}/resources/${
+									idx ? faker.system.fileName() : "subject.pdf"
+								}`
+						),
+				  }
+				: undefined,
 		});
 	} catch (e) {
 		next(e);
@@ -52,14 +57,16 @@ router.get("/:id", async (req, res, next) => {
 
 router.post("/:id", async (req, res, next) => {
 	try {
-		const id = Number(req.params.id);
+		const projectId = Number(req.params.id);
 
 		// check if already enrolled
 		if (
 			await prisma.assignment.findUnique({
 				where: {
-					studentId: req.user.id,
-					currentProjectId: id,
+					studentId_currentProjectId: {
+						studentId: req.user.id,
+						currentProjectId: projectId,
+					},
 				},
 			})
 		)
@@ -68,11 +75,11 @@ router.post("/:id", async (req, res, next) => {
 		// create new assignment
 		const assignment = await prisma.assignment.create({
 			data: {
-				grade: 0,
-				studentId: { connect: { id: req.user.id } },
-				currentProjectId: { connect: { id } },
+				student: { connect: { id: req.user.id } },
+				currentProject: { connect: { id: projectId } },
 			},
 		});
+		res.status(201).send("Student enrolled successfully.");
 	} catch (e) {
 		next(e);
 	}
