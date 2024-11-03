@@ -10,14 +10,14 @@ module.exports = {
 				?.replace(/(?:Bearer )/, "")
 				.trim();
 
-			console.log("token:", token);
-			console.log("JWT_SECRET:", JWT_SECRET);
-			const decodedToken = jwt.decode(token);
-			console.log("Decoded token:", decodedToken);
+			//console.log("token:", token);
+			//console.log("JWT_SECRET:", JWT_SECRET);
+			//const decodedToken = jwt.decode(token);
+			//console.log("Decoded token:", decodedToken);
 			if (!token) return next();
 
 			const { id } = jwt.verify(token, JWT_SECRET);
-			console.log(id, JWT_SECRET);
+			//console.log(id, JWT_SECRET);
 			const user = await prisma.student.findUniqueOrThrow({ where: { id } });
 			req.user = user;
 		} catch (e) {
