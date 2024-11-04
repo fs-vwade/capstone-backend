@@ -5,7 +5,6 @@ const router = express.Router();
 const prisma = require("../../../prisma");
 
 router.get("/", async (req, res, next) => {
-	console.log(req.user);
 	try {
 		const { id } = req.user;
 		const student = await prisma.student.findUnique({
