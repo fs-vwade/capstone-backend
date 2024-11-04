@@ -42,7 +42,7 @@ const seed = async (project_seeds = 25) => {
 					data: {
 						grade: 125 * Math.random(),
 						student: { connect: { id: student.id } },
-						currentProject: { connect: { id: enrollment.id } },
+						project: { connect: { id: enrollment.id } },
 					},
 				})
 			);

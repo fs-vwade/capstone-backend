@@ -21,24 +21,24 @@ router.get("/:id", async (req, res, next) => {
 		const { id } = req.params;
 		const assignment = await prisma.assignment.findUnique({
 			where: {
-				studentId_currentProjectId: {
+				studentId_projectId: {
 					studentId: req.user.id,
-					currentProjectId: Number(id),
+					projectId: Number(id),
 				},
 			},
-			include: { currentProject: true },
+			include: { project: true },
 		});
 		const enrolled = !!assignment;
 
 		res.json({
-			name: assignment?.currentProject.name,
+			name: assignment?.project.name,
 			grade: assignment?.grade,
 			enrolled,
 			project: enrolled
 				? {
-						exp: assignment?.currentProject.exp,
-						type: assignment?.currentProject.type,
-						description: assignment?.currentProject.description,
+						exp: assignment?.project.exp,
+						type: assignment?.project.type,
+						description: assignment?.project.description,
 						// we will seed this to the database later
 						links: Array.from(
 							{ length: Math.floor(2 + Math.random() * 4) },
@@ -63,9 +63,9 @@ router.post("/:id", async (req, res, next) => {
 		if (
 			await prisma.assignment.findUnique({
 				where: {
-					studentId_currentProjectId: {
+					studentId_projectId: {
 						studentId: req.user.id,
-						currentProjectId: projectId,
+						projectId: projectId,
 					},
 				},
 			})
@@ -76,7 +76,7 @@ router.post("/:id", async (req, res, next) => {
 		const assignment = await prisma.assignment.create({
 			data: {
 				student: { connect: { id: req.user.id } },
-				currentProject: { connect: { id: projectId } },
+				project: { connect: { id: projectId } },
 			},
 		});
 		res.status(201).send("Student enrolled successfully.");
@@ -92,9 +92,9 @@ router.delete("/:id", async (req, res, next) => {
 
 		const assignment = await prisma.assignment.findUnique({
 			where: {
-				studentId_currentProjectId: {
+				studentId_projectId: {
 					studentId: req.user.id,
-					currentProjectId: projectId,
+					projectId: projectId,
 				},
 			},
 		});
