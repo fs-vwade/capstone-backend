@@ -18,12 +18,18 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
 	try {
-		const { id } = req.params;
+		const id = Number(req.params.id);
+		const project = await prisma.project.findUnique({
+			where: { id },
+		});
+
+		if (!project) return res.status(404).send("Project not found.");
+
 		const assignment = await prisma.assignment.findUnique({
 			where: {
 				studentId_projectId: {
 					studentId: req.user.id,
-					projectId: Number(id),
+					projectId: project.id,
 				},
 			},
 			include: { project: true },
@@ -31,24 +37,22 @@ router.get("/:id", async (req, res, next) => {
 		const enrolled = !!assignment;
 
 		res.json({
-			name: assignment?.project.name,
+			name: project.name,
 			grade: assignment?.grade,
 			enrolled,
-			project: enrolled
-				? {
-						exp: assignment?.project.exp,
-						type: assignment?.project.type,
-						description: assignment?.project.description,
-						// we will seed this to the database later
-						links: Array.from(
-							{ length: Math.floor(2 + Math.random() * 4) },
-							(e, idx) =>
-								`/projects/${id}/resources/${
-									idx ? `resource_${idx}.pdf` : "subject.pdf"
-								}`
-						),
-				  }
-				: undefined,
+			project: {
+				exp: project.exp,
+				type: project.type,
+				description: project.description,
+				// we will seed this to the database later
+				links: Array.from(
+					{ length: Math.floor(2 + Math.random() * 4) },
+					(e, idx) =>
+						`/projects/${id}/resources/${
+							idx ? `resource_${idx}.pdf` : "subject.pdf"
+						}`
+				),
+			},
 		});
 	} catch (e) {
 		next(e);
