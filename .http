@@ -1,6 +1,6 @@
 @host=http://localhost:3000
 @username=Jo55
-@project_id=24
+@project_id=1
 
 ### No route
 GET {{host}}
@@ -9,12 +9,12 @@ GET {{host}}
 GET {{host}}/profile/{{username}}
 
 ### New user
-# @name register
+# @name login
 POST {{host}}/register
 Content-Type: application/json
 
 {
-	"username": "foobar1",
+	"username": "Jo55",
 	"password": "12345677"
 }
 
@@ -24,7 +24,7 @@ POST {{host}}/login
 Content-Type: application/json
 
 {
-	"username": "foobar1",
+	"username": "Jo55",
 	"password": "12345677"
 }
 
@@ -63,6 +63,6 @@ Content-Type: application/json
 
 {
 	"studentId": 31,
-	"projectId": 24,
+	"projectId": 1,
 	"grade": 100
 }
