@@ -15,7 +15,7 @@ router.put("/", async (req, res, next) => {
 				},
 			},
 			// this is just to simulate variance in the grading process, remove later
-			data: { grade: grade * 0.5 * Math.pow(2.5, Math.random) },
+			data: { grade: parseInt(grade * 0.5 * Math.pow(2.5, Math.random())) },
 		});
 		if (assignment) res.status(200).json({ assignment });
 		else next({ status: 403, message: "Cannot grade if not enrolled." });
