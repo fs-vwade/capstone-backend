@@ -63,7 +63,6 @@ Content-Type: application/json
 
 {
 	"studentId": 31,
-	"projectId": 1,
+	"projectId": 24,
 	"grade": 100
 }
-
