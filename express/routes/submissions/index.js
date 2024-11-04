@@ -11,9 +11,9 @@ router.put("/", async (req, res, next) => {
 		const grade = req.body.grade * 0.5 * Math.pow(2.5, Math.random());
 		const assignment = await prisma.assignment.findUnique({
 			where: {
-				studentId_currentProjectId: {
+				studentId_projectId: {
 					studentId: studentId,
-					currentProjectId: projectId,
+					projectId: projectId,
 				},
 			},
 		});

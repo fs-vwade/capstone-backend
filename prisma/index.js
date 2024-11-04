@@ -11,12 +11,12 @@ prisma.$use(async (params, next) => {
 		const studentId = result.studentId;
 		const assignments = await prisma.assignment.findMany({
 			where: { studentId },
-			include: { currentProject: true },
+			include: { project: true },
 		});
 
 		const XP = assignments.reduce(
 			(exp, assignment) =>
-				exp + (assignment.grade / 100) * assignment.currentProject.exp,
+				exp + (assignment.grade / 100) * assignment.project.exp,
 			0
 		);
 
