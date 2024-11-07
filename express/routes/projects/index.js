@@ -9,7 +9,7 @@ const faker = require("@faker-js/faker");
 
 router.get("/", async (req, res, next) => {
 	try {
-		const projects = await prisma.project.findMany();
+		const projects = await prisma.projectData.findMany();
 		res.json({ projects });
 	} catch (e) {
 		next(e);
@@ -19,41 +19,40 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
 	try {
 		const id = Number(req.params.id);
-		const project = await prisma.project.findUnique({
+		const projectData = await prisma.project.findUnique({
 			where: { id },
 		});
 
-		if (!project) return res.status(404).send("Project not found.");
+		if (!projectData) return res.status(404).send("Project not found.");
 
 		const assignment = await prisma.assignment.findUnique({
 			where: {
 				studentId_projectId: {
 					studentId: req.user.id,
-					projectId: project.id,
+					projectId: projectData.id,
 				},
 			},
 			include: { project: true },
 		});
 		const enrolled = !!assignment;
-
-		res.json({
-			name: project.name,
-			grade: assignment?.grade,
+		const project = {
+			name: projectData.name,
 			enrolled,
-			project: {
-				exp: project.exp,
-				type: project.type,
-				description: project.description,
-				// we will seed this to the database later
-				links: Array.from(
-					{ length: Math.floor(2 + Math.random() * 4) },
-					(e, idx) =>
-						`/projects/${id}/resources/${
-							idx ? `resource_${idx}.pdf` : "subject.pdf"
-						}`
-				),
-			},
-		});
+			grade: assignment?.grade,
+			exp: projectData.exp,
+			type: projectData.type,
+			description: projectData.description,
+			// we will seed this to the database later
+			links: Array.from(
+				{ length: Math.floor(2 + Math.random() * 4) },
+				(e, idx) =>
+					`/projects/${id}/resources/${
+						idx ? `resource_${idx}.pdf` : "subject.pdf"
+					}`
+			),
+		};
+
+		res.json({ project });
 	} catch (e) {
 		next(e);
 	}
