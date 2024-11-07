@@ -9,7 +9,7 @@ const faker = require("@faker-js/faker");
 
 router.get("/", async (req, res, next) => {
 	try {
-		const projects = await prisma.projectData.findMany();
+		const projects = await prisma.project.findMany();
 		res.json({ projects });
 	} catch (e) {
 		next(e);
