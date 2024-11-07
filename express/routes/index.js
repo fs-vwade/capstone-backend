@@ -3,10 +3,11 @@
 const express = require("express");
 const router = express.Router();
 
-const { authRoutes, authenticate } = require("../middleware");
+const { cors, authRoutes, authenticate } = require("../middleware");
 
 router.use(require("morgan")("dev"));
 router.use(express.json());
+router.use(cors);
 
 router.use(authRoutes);
 router.use("/submissions", authenticate, require("./submissions"));
