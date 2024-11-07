@@ -39,16 +39,28 @@ prisma.$use(async (params, next) => {
 module.exports = prisma.$extends({
 	model: {
 		student: {
-			register: async (username, password) =>
-				await prisma.student.create({
+			register: async (username, password) => {
+				const exists = await prisma.student.findUnique({
+					where: { username },
+				});
+
+				if (exists) throw new Error("Username taken");
+
+				const student = await prisma.student.create({
 					data: {
 						username,
 						password: await bcrypt.hash(String(password), 10),
 					},
-				}),
+				});
+
+				student.password = undefined;
+
+				return student;
+			},
 			login: async (username, password) => {
 				const student = await prisma.student.findUniqueOrThrow({
 					where: { username },
+					include: { projects: true },
 				});
 				if (await bcrypt.compare(String(password), student.password))
 					return student;
