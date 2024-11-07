@@ -1,9 +1,12 @@
+// express/middleware/auth/token/index.js
+
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const prisma = require("../../../../prisma");
 
 module.exports = {
-	createToken: (id) => jwt.sign({ id }, JWT_SECRET, { expiresIn: "1d" }),
+	createToken: (id, username) =>
+		jwt.sign({ id, username }, JWT_SECRET, { expiresIn: "1d" }),
 	verifyToken: async (req, res, next) => {
 		try {
 			const token = req.headers.authorization
@@ -16,7 +19,9 @@ module.exports = {
 			req.user = user;
 			next();
 		} catch (e) {
-			next(e);
+			res
+				.status(401)
+				.json({ message: "Unauthorized access: invalid or expired token" });
 		}
 	},
 };
