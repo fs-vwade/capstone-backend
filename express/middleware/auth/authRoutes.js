@@ -12,7 +12,10 @@ router.post("/register", async (req, res, next) => {
 		const token = createToken(student.id);
 		res.status(201).json({ token });
 	} catch (e) {
-		next(e);
+		if (e.message.includes("Username taken")) {
+			return res.status(400).send("Username already exists.");
+		}
+		next(e); // General error handling
 	}
 });
 
