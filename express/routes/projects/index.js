@@ -42,8 +42,8 @@ router.get("/:id", async (req, res, next) => {
 			exp: projectData.exp,
 			type: projectData.type,
 			description: projectData.description,
-			studentId: assignment.studentId,
-			projectId: assignment.projectId,
+			studentId: assignment?.studentId,
+			projectId: assignment?.projectId,
 			// we will seed this to the database later
 			links: Array.from(
 				{ length: Math.floor(2 + Math.random() * 4) },
