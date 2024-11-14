@@ -1,6 +1,6 @@
 // express/middleware/cors.js
 
-HOST_URL = "http://localhost:1337";
+HOST_URL = "https://intra-75.netlify.app";
 
 module.exports = (req, res, next) => {
 	res.header("Access-Control-Allow-Origin", HOST_URL); // Change to your specific origin
