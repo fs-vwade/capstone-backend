@@ -3,7 +3,12 @@
 	"version": "1.0.0",
 	"description": "backend segment of capstone MVP",
 	"main": "index.js",
+	"engines": {
+		"node": ">=20.16.0"
+	},
 	"scripts": {
+		"start": "node express/server.js",
+		"build": "prisma generate",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "nodemon express/server.js"
 	},
