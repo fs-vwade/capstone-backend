@@ -56,21 +56,21 @@ const seed = async (project_seeds = 25) => {
 			student: { connect: { id: student.id } },
 			project: { connect: { id: enrollment.id } },
 		}));
-		const assignments = [];
-		for (const enrollment of enrollments) {
-			assignments.push(
-				await prisma.assignment.upsert({
-					where: {
-						studentId_projectId: {
-							studentId: student.id,
-							projectId: enrollment.id,
+		const assignments = await Promise.all(
+			enrollmentData.map(
+				async (enrollment) =>
+					await prisma.assignment.upsert({
+						where: {
+							studentId_projectId: {
+								studentId: enrollment.student.connect.id,
+								projectId: enrollment.project.connect.id,
+							},
 						},
-					},
-					update: enrollment,
-					create: enrollment,
-				})
-			);
-		}
+						update: enrollment,
+						create: enrollment,
+					})
+			)
+		);
 	}
 };
 
