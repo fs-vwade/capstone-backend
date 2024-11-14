@@ -21,9 +21,9 @@ const seed = async (project_seeds = 25) => {
 	}));
 	const projects = await Promise.all(
 		projectsData.map(
-			async (project) =>
+			async (project, id) =>
 				await prisma.project.upsert({
-					where: { name: project.name },
+					where: { id },
 					update: project,
 					create: project,
 				})
@@ -48,29 +48,22 @@ const seed = async (project_seeds = 25) => {
 
 	// assignments should not be seeded, but we can simulate the enrollment process
 	for (const student of students) {
-		const enrollments = random_shuffle(projects).slice(
-			(end = Math.ceil(Math.random() * projects.length * 0.5))
-		);
-		const enrollmentData = enrollments.map((enrollment) => ({
-			grade: 25 + 10 * Math.pow(10, Math.random()),
-			student: { connect: { id: student.id } },
-			project: { connect: { id: enrollment.id } },
-		}));
-		const assignments = await Promise.all(
-			enrollmentData.map(
-				async (enrollment) =>
-					await prisma.assignment.upsert({
-						where: {
-							studentId_projectId: {
-								studentId: enrollment.student.connect.id,
-								projectId: enrollment.project.connect.id,
-							},
-						},
-						update: enrollment,
-						create: enrollment,
-					})
-			)
-		);
+		const enrollments = random_shuffle(projects)
+			.slice((end = Math.ceil(Math.random() * projects.length * 0.5)))
+			.map((enrollment) => ({
+				grade: 25 + 10 * Math.pow(10, Math.random()),
+				student: { connect: { id: student.id } },
+				project: { connect: { id: enrollment.id } },
+			}));
+		for (const enrollment of enrollments) {
+			try {
+				await prisma.assignment.create({ data: enrollment });
+			} catch (e) {
+				console.log(
+					`Duplicate enrollment skipped: Student ${student.id} for Project ${enrollment.project.connect.id}`
+				);
+			}
+		}
 	}
 };
 
