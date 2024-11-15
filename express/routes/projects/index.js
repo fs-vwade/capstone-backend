@@ -85,7 +85,6 @@ router.post("/:id", async (req, res, next) => {
 			},
 		});
 		res.status(201).send("Student enrolled successfully.");
-		console.log(assignment);
 	} catch (e) {
 		next(e);
 	}
