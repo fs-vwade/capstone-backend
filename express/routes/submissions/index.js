@@ -7,6 +7,10 @@ const prisma = require("../../../prisma");
 router.put("/", async (req, res, next) => {
 	try {
 		const { studentId, projectId } = req.body;
+
+		if (!(studentId === req.user.id))
+			return res.status(401).send("Submission rejected. Invalid ID.");
+
 		// this is just to simulate variance in the grading process, remove later
 		const grade = req.body.grade * 0.5 * Math.pow(2.5, Math.random());
 		const assignment = await prisma.assignment.findUnique({
