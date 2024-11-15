@@ -59,7 +59,7 @@ const seed = async (project_seeds = 25) => {
 			try {
 				await prisma.assignment.create({ data: enrollment });
 			} catch (e) {
-				console.log(
+				console.info(
 					`Duplicate enrollment skipped: Student ${student.id} for Project ${enrollment.project.connect.id}`
 				);
 			}
