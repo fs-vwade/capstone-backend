@@ -57,15 +57,26 @@ module.exports = prisma.$extends({
 
 				return student;
 			},
-			login: async (username, password) => {
-				const student = await prisma.student.findUniqueOrThrow({
-					where: { username },
-					include: { projects: true },
-				});
-				if (await bcrypt.compare(String(password), student.password))
-					return student;
-				throw Error("Invalid password");
-			},
-		},
+                        login: async (username, password) => {
+                                const student = await prisma.student.findUniqueOrThrow({
+                                        where: { username },
+                                        include: {
+                                                instructor: true,
+                                                projects: {
+                                                        include: {
+                                                                cohort: {
+                                                                        include: {
+                                                                                instructor: true,
+                                                                        },
+                                                                },
+                                                        },
+                                                },
+                                        },
+                                });
+                                if (await bcrypt.compare(String(password), student.password))
+                                        return student;
+                                throw Error("Invalid password");
+                        },
+                },
 	},
 });

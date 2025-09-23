@@ -3,9 +3,6 @@
 const express = require("express");
 const router = express.Router();
 const prisma = require("../../../prisma");
-const authenticate = require("../../middleware/auth/authenticate");
-
-const faker = require("@faker-js/faker");
 
 router.get("/", async (req, res, next) => {
 	try {
@@ -17,38 +14,72 @@ router.get("/", async (req, res, next) => {
 });
 
 router.get("/:id", async (req, res, next) => {
-	try {
-		const id = Number(req.params.id);
-		const projectData = await prisma.project.findUnique({
-			where: { id },
-		});
+        try {
+                const id = Number(req.params.id);
+                const projectData = await prisma.project.findUnique({
+                        where: { id },
+                });
 
-		if (!projectData) return res.status(404).send("Project not found.");
+                if (!projectData) return res.status(404).send("Project not found.");
 
-		const assignment = await prisma.assignment.findUnique({
-			where: {
-				studentId_projectId: {
-					studentId: req.user.id,
-					projectId: projectData.id,
-				},
-			},
-			include: { project: true },
-		});
-		const enrolled = !!assignment;
-		const project = {
-			name: projectData.name,
-			enrolled,
-			grade: assignment?.grade,
+                const assignmentPromise = prisma.assignment.findUnique({
+                        where: {
+                                studentId_projectId: {
+                                        studentId: req.user.id,
+                                        projectId: projectData.id,
+                                },
+                        },
+                        include: {
+                                project: true,
+                                cohort: {
+                                        include: {
+                                                instructor: true,
+                                        },
+                                },
+                        },
+                });
+                const cohortsPromise = req.user.instructorId
+                        ? prisma.cohort.findMany({
+                                  where: {
+                                          projectId: projectData.id,
+                                          instructorId: req.user.instructorId,
+                                  },
+                                  include: {
+                                          instructor: true,
+                                  },
+                                  orderBy: { cohortNumber: "asc" },
+                          })
+                        : Promise.resolve([]);
+
+                const [assignment, cohorts] = await Promise.all([
+                        assignmentPromise,
+                        cohortsPromise,
+                ]);
+                const enrolled = !!assignment;
+                const project = {
+                        name: projectData.name,
+                        enrolled,
+                        grade: assignment?.grade,
 			exp: projectData.exp,
 			type: projectData.type,
 			description: projectData.description,
-			studentId: req.user.id,
-			projectId: id,
-			// we will seed this to the database later
-			links: Array.from(
-				{ length: Math.floor(2 + Math.random() * 4) },
-				(e, idx) =>
-					`/projects/${id}/resources/${
+                        studentId: req.user.id,
+                        projectId: id,
+                        cohorts: cohorts.map((cohort) => ({
+                                id: cohort.id,
+                                cohortNumber: cohort.cohortNumber,
+                                instructorId: cohort.instructorId,
+                                instructor: cohort.instructor && {
+                                        id: cohort.instructor.id,
+                                        name: cohort.instructor.name,
+                                        email: cohort.instructor.email,
+                                },
+                        })),
+                        // we will seed this to the database later
+                        links: Array.from(
+                                { length: Math.floor(2 + Math.random() * 4) },
+                                (e, idx) =>
+                                        `/projects/${id}/resources/${
 						idx ? `resource_${idx}.pdf` : "subject.pdf"
 					}`
 			),
@@ -57,11 +88,11 @@ router.get("/:id", async (req, res, next) => {
 		res.json({ project, assignment });
 	} catch (e) {
 		next(e);
-	}
+        }
 });
 
 router.post("/:id", async (req, res, next) => {
-	try {
+        try {
 		const projectId = Number(req.params.id);
 
 		// check if already enrolled
@@ -90,9 +121,100 @@ router.post("/:id", async (req, res, next) => {
 	}
 });
 
+router.post("/:id/cohorts/:cohortId", async (req, res, next) => {
+        try {
+                const projectId = Number(req.params.id);
+                const cohortId = Number(req.params.cohortId);
+
+                if (Number.isNaN(projectId) || Number.isNaN(cohortId))
+                        return res.status(400).send("Invalid identifiers provided.");
+
+                const assignment = await prisma.assignment.findUnique({
+                        where: {
+                                studentId_projectId: {
+                                        studentId: req.user.id,
+                                        projectId,
+                                },
+                        },
+                });
+
+                if (!assignment)
+                        return res
+                                .status(403)
+                                .send("Student must enroll in the class before joining a cohort.");
+
+                if (!req.user.instructorId)
+                        return res
+                                .status(403)
+                                .send("Student must be assigned to an instructor before joining a cohort.");
+
+                const cohort = await prisma.cohort.findUnique({
+                        where: { id: cohortId },
+                        include: { instructor: true },
+                });
+
+                if (!cohort || cohort.projectId !== projectId)
+                        return res.status(404).send("Cohort not found for this project.");
+
+                if (cohort.instructorId !== req.user.instructorId)
+                        return res
+                                .status(403)
+                                .send("Cohort does not belong to the student's instructor.");
+
+                const updatedAssignment = await prisma.assignment.update({
+                        where: { id: assignment.id },
+                        data: {
+                                cohort: { connect: { id: cohort.id } },
+                        },
+                        include: {
+                                cohort: {
+                                        include: {
+                                                instructor: true,
+                                        },
+                                },
+                        },
+                });
+
+                res.status(200).json({
+                        message: "Student enrolled in cohort successfully.",
+                        cohort: updatedAssignment.cohort,
+                });
+        } catch (e) {
+                next(e);
+        }
+});
+
+router.delete("/:id/cohorts", async (req, res, next) => {
+        try {
+                const projectId = Number(req.params.id);
+
+                const assignment = await prisma.assignment.findUnique({
+                        where: {
+                                studentId_projectId: {
+                                        studentId: req.user.id,
+                                        projectId,
+                                },
+                        },
+                        include: { cohort: true },
+                });
+
+                if (!assignment || !assignment.cohortId)
+                        return res.status(404).send("Cohort enrollment not found.");
+
+                await prisma.assignment.update({
+                        where: { id: assignment.id },
+                        data: { cohort: { disconnect: true } },
+                });
+
+                res.status(204).send();
+        } catch (e) {
+                next(e);
+        }
+});
+
 router.delete("/:id", async (req, res, next) => {
-	try {
-		const projectId = Number(req.params.id);
+        try {
+                const projectId = Number(req.params.id);
 
 		const assignment = await prisma.assignment.findUnique({
 			where: {
