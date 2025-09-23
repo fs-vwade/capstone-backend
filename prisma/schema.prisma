@@ -20,6 +20,8 @@ model Student {
     exp      Int          @default(0)
     level    Float        @default(0)
     projects Assignment[]
+    instructor   Instructor? @relation(fields: [instructorId], references: [id])
+    instructorId Int?
 }
 
 model Assignment {
@@ -29,6 +31,8 @@ model Assignment {
     studentId Int
     project   Project @relation(fields: [projectId], references: [id])
     projectId Int
+    cohort    Cohort?  @relation(fields: [cohortId], references: [id])
+    cohortId  Int?
 
     @@unique([studentId, projectId])
 }
@@ -40,4 +44,25 @@ model Project {
     description String
     exp         Int
     assignments Assignment[]
+    cohorts     Cohort[]
+}
+
+model Instructor {
+    id        Int       @id @default(autoincrement())
+    name      String
+    email     String    @unique
+    students  Student[]
+    cohorts   Cohort[]
+}
+
+model Cohort {
+    id           Int         @id @default(autoincrement())
+    cohortNumber Int
+    instructor   Instructor  @relation(fields: [instructorId], references: [id])
+    instructorId Int
+    project      Project     @relation(fields: [projectId], references: [id])
+    projectId    Int
+    assignments  Assignment[]
+
+    @@unique([instructorId, projectId, cohortNumber])
 }
